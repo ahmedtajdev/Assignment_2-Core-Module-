@@ -7,9 +7,10 @@ const sendResponse = require("../utils/sendResponse");
 async function createUser(req, res) {
   try {
     const newUser = await parseBody(req);
-    const users = readUsers();
+    const users = await readUsers();
+    const user = users.find((user) => user.email === newUser.email);
 
-    if (isUserExists(users, "email", newUser.email)) {
+    if (user) {
       return sendResponse(res, 400, {
         message: "Email already exists",
       });
@@ -19,7 +20,7 @@ async function createUser(req, res) {
 
     users.push(newUser);
 
-    writeUsers(users);
+    await writeUsers(users);
 
     sendResponse(res, 201, {
       message: "User created successfully",
@@ -34,9 +35,11 @@ async function updateUser(req, res) {
   try {
     const id = Number(req.url.split("/")[2]);
     const updatedUserData = await parseBody(req);
-    const users = readUsers();
+    const users = await readUsers();
+    const userMap = new Map(users.map((user) => [user.id, user]));
+    const user = userMap.get(id);
 
-    if (!isUserExists(users, "id", id)) {
+    if (!userMap.has(id)) {
       return sendResponse(res, 404, {
         message: "User ID not found.",
       });
@@ -53,7 +56,7 @@ async function updateUser(req, res) {
       });
     }
 
-    const userIndex = users.findIndex((user) => user.id === id);
+    const userIndex = id - 1;
 
     users[userIndex] = {
       ...users[userIndex],
@@ -61,7 +64,7 @@ async function updateUser(req, res) {
       id,
     };
 
-    writeUsers(users);
+    await writeUsers(users);
 
     return sendResponse(res, 200, {
       message: "User updated successfully",
@@ -75,7 +78,7 @@ async function updateUser(req, res) {
 async function deleteUser(req, res) {
   try {
     const id = Number(req.url.split("/")[2]);
-    const users = readUsers();
+    const users = await readUsers();
 
     if (!isUserExists(users, "id", id)) {
       return sendResponse(res, 404, {
@@ -85,7 +88,7 @@ async function deleteUser(req, res) {
 
     const updatedUsers = users.filter((user) => user.id !== id);
 
-    writeUsers(updatedUsers);
+    await writeUsers(updatedUsers);
 
     return sendResponse(res, 200, {
       message: "User deleted successfully",
@@ -99,7 +102,7 @@ async function deleteUser(req, res) {
 
 async function getAllUsers(req, res) {
   try {
-    const users = readUsers();
+    const users = await readUsers();
 
     return sendResponse(res, 200, users);
   } catch (error) {
@@ -113,7 +116,7 @@ async function getUserById(req, res) {
   try {
     const id = Number(req.url.split("/")[2]);
 
-    const users = readUsers();
+    const users = await readUsers();
 
     const user = users.find((user) => user.id === id);
 

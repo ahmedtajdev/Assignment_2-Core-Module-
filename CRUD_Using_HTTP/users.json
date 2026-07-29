@@ -5,11 +5,6 @@
     "id": 1
   },
   {
-    "name": "ali",
-    "email": "ali@example.com",
-    "id": 2
-  },
-  {
     "name": "Ahmed",
     "email": "ahmed@example.com",
     "id": 3
@@ -18,5 +13,10 @@
     "name": "john",
     "email": "john@example.com",
     "id": 4
+  },
+  {
+    "name": "omar",
+    "email": "omar@example.com",
+    "id": 5
   }
 ]
