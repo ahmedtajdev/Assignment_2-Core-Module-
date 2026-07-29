@@ -1,7 +1,6 @@
 const readUsers = require("../utils/readUsers");
 const writeUsers = require("../utils/writeUsers");
 const parseBody = require("../utils/parseBody");
-const isUserExists = require("../utils/isUserExists");
 const sendResponse = require("../utils/sendResponse");
 const binarySearch = require("../utils/binarySearch");
 
