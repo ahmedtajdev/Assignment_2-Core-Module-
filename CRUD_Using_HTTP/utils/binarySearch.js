@@ -2,14 +2,15 @@ function binarySearch(users, id) {
   let left = 0;
   let right = users.length - 1;
 
-  while (left < right) {
+  while (left <= right) {
     const mid = Math.floor((left + right) / 2);
+    const user = users[mid];
 
-    if (users[mid].id === id) {
+    if (user.id === id) {
       return mid;
     }
 
-    if (users[mid].id < id) {
+    if (user.id < id) {
       left = mid + 1;
     } else {
       right = mid - 1;
