@@ -3,6 +3,7 @@ const writeUsers = require("../utils/writeUsers");
 const parseBody = require("../utils/parseBody");
 const isUserExists = require("../utils/isUserExists");
 const sendResponse = require("../utils/sendResponse");
+const binarySearch = require("../utils/binarySearch");
 
 async function createUser(req, res) {
   try {
@@ -36,10 +37,10 @@ async function updateUser(req, res) {
     const id = Number(req.url.split("/")[2]);
     const updatedUserData = await parseBody(req);
     const users = await readUsers();
-    const userMap = new Map(users.map((user) => [user.id, user]));
-    const user = userMap.get(id);
 
-    if (!userMap.has(id)) {
+    const userIndex = binarySearch(users, id);
+
+    if (userIndex === -1) {
       return sendResponse(res, 404, {
         message: "User ID not found.",
       });
@@ -55,8 +56,6 @@ async function updateUser(req, res) {
         message: "Email already exists.",
       });
     }
-
-    const userIndex = id - 1;
 
     users[userIndex] = {
       ...users[userIndex],
@@ -80,15 +79,17 @@ async function deleteUser(req, res) {
     const id = Number(req.url.split("/")[2]);
     const users = await readUsers();
 
-    if (!isUserExists(users, "id", id)) {
+    const userIndex = binarySearch(users, id);
+
+    if (userIndex === -1) {
       return sendResponse(res, 404, {
         message: "User ID not found.",
       });
     }
 
-    const updatedUsers = users.filter((user) => user.id !== id);
+    users.splice(userIndex, 1);
 
-    await writeUsers(updatedUsers);
+    await writeUsers(users);
 
     return sendResponse(res, 200, {
       message: "User deleted successfully",
@@ -115,20 +116,21 @@ async function getAllUsers(req, res) {
 async function getUserById(req, res) {
   try {
     const id = Number(req.url.split("/")[2]);
-
     const users = await readUsers();
 
-    const user = users.find((user) => user.id === id);
+    const userIndex = binarySearch(users, id);
 
-    if (!user) {
+    if (userIndex === -1) {
       return sendResponse(res, 404, {
         message: "User not found",
       });
     }
 
-    return sendResponse(res, 200, user);
+    return sendResponse(res, 200, users[userIndex]);
   } catch (error) {
-    return sendResponse(res, 400, user);
+    return sendResponse(res, 400, {
+      message: error.message,
+    });
   }
 }
 
